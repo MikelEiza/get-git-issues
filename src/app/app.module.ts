@@ -15,6 +15,8 @@ import { githubReducer } from './reducers/github.reducer';
 import { MultiplyPipe } from './pipes/multiply.pipe';
 import { CustomMatPaginatorIntl } from './providers/custon-mat-paginator-intl';
 import { GithubEffects } from './effects/github.effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [
@@ -31,6 +33,10 @@ import { GithubEffects } from './effects/github.effects';
     HttpClientModule,
     StoreModule.forRoot({ state: githubReducer }),
     EffectsModule.forRoot([GithubEffects]),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25, // Retains last 25 states
+      logOnly: environment.production, // Restrict extension to log-only mode
+    }),
   ],
   providers: [{provide: MatPaginatorIntl, useClass: CustomMatPaginatorIntl}],
   bootstrap: [AppComponent]

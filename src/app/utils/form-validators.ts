@@ -10,7 +10,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 }
 
 export function repositoryValidator(control: AbstractControl): { [key: string]: boolean } | null {
-  let regexp = new RegExp(/^https:\/\/github.com\/\w+\/\w+$/);
+  let regexp = new RegExp(/^https:\/\/github.com\/[a-zA-Z\-0-9]+\/[a-zA-Z\-0-9]+$/);
   if (!regexp.test(control.value)) {
     return { 'repository': true };
   }

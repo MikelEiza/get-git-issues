@@ -43,7 +43,7 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
   <br/>
-  <mat-paginator (page)="handlePageEvent($event)"
+  <mat-paginator *ngIf="issuePageUrl$ | async as issuePageUrl" (page)="handlePageEvent($event, issuePageUrl)"
                 [length]="(totalPages$ | async) | multiply:pageSize"
                 [showFirstLastButtons]="showFirstLastButtons"
                 [pageSizeOptions]="pageSizeOptions"

@@ -1,13 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
+import { PageEvent } from '@angular/material/paginator';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { Issue, Page } from '../models/github.model';
-import { GithubService } from '../services/github.service';
 import * as githubActions from '../actions/github.actions';
+import { Issue, Page } from '../models/github.model';
 import * as fromState from '../reducers/github.reducer';
-import { PageEvent } from '@angular/material/paginator';
-import { FormControl, Validators } from '@angular/forms';
-import { take } from 'rxjs/operators';
 import { MyErrorStateMatcher, repositoryValidator } from '../utils/form-validators';
 
 @Component({
@@ -23,9 +21,9 @@ export class AppComponent {
   ]);
   matcher = new MyErrorStateMatcher();
 
-  issues$: Observable<Issue[]>;
-  totalPages$: Observable<number>;
-  issuePageUrl$: Observable<string>;
+  issues$: Observable<Issue[]> = this.store.select(fromState.selectIssues);
+  totalPages$: Observable<number> = this.store.select(fromState.selectTotalPages);
+  issuePageUrl$: Observable<string> = this.store.select(fromState.selectIssuePageUrl);
 
   inputValue: string = "";
   displayedColumns: string[] = ['id', 'title', 'state', 'url'];
@@ -33,25 +31,17 @@ export class AppComponent {
   showFirstLastButtons: boolean = true;
   pageSize: number = 10;
 
-  constructor(private store: Store<{ state: Page }>,
-    private githubService: GithubService) {
-    this.issues$ = store.select(fromState.selectIssues);
-    this.totalPages$ = store.select(fromState.selectTotalPages);
-    this.issuePageUrl$ = store.select(fromState.selectIssuePageUrl);
-  }
+  constructor(
+    private store: Store<{ state: Page }>,
+  ) { }
 
   loadIssues(url: string) {
-    this.githubService.getNewIssuesPageFromRepository(url, this.pageSize).subscribe({
-      next: (page: Page) => this.store.dispatch(githubActions.loadPage(page)),
-      error: () => this.store.dispatch(githubActions.cleanPage())
-    })
+    this.store.dispatch(githubActions.initRepo({url, pageSize: this.pageSize}));
   }
 
-  handlePageEvent(event: PageEvent) {
-    this.pageSize = event.pageSize
-    this.issuePageUrl$.pipe(take(1)).subscribe({
-      next: (issuePageUrl) => this.store.dispatch(githubActions.paginate({url: issuePageUrl, pageEvent: event}))
-    })
+  handlePageEvent(event: PageEvent, issuePageUrl: string) {
+    this.pageSize = event.pageSize;
+    this.store.dispatch(githubActions.paginate({url: issuePageUrl, pageEvent: event}));
   }
 
   onSubmit (isInputValid: boolean, event: Event) {
